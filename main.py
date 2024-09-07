@@ -22,7 +22,7 @@ class WorkerThread(QThread):
 
     def run(self):
         while self.running:
-            # Move mouse cursor slightly
+            # Move mouse cursor based on distance
             current_position = pyautogui.position()
             pyautogui.moveTo(current_position.x + self.distance, current_position.y)
             pyautogui.moveTo(current_position.x, current_position.y)
