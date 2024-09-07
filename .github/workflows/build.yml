@@ -3,10 +3,10 @@ name: Build Application
 on:
     push:
         branches:
-            - main # Trigger build on pushes to the main branch
+            - publish # Trigger build on pushes to the publish branch
     pull_request:
         branches:
-            - main # Trigger build on pull requests to the main branch
+            - publish # Trigger build on pull requests to the publish branch
 
 jobs:
     build-windows:
@@ -18,7 +18,7 @@ jobs:
             - name: Set up Python
               uses: actions/setup-python@v4
               with:
-                  python-version: 3.x # Replace with the Python version you need
+                  python-version: 3.12 # Replace with the Python version you need
 
             - name: Install dependencies
               run: |
@@ -44,7 +44,7 @@ jobs:
             - name: Set up Python
               uses: actions/setup-python@v4
               with:
-                  python-version: 3.x # Replace with the Python version you need
+                  python-version: 3.12 # Replace with the Python version you need
 
             - name: Install dependencies
               run: |
@@ -70,7 +70,7 @@ jobs:
             - name: Set up Python
               uses: actions/setup-python@v4
               with:
-                  python-version: 3.x # Replace with the Python version you need
+                  python-version: 3.12 # Replace with the Python version you need
 
             - name: Install dependencies
               run: |
