@@ -9,3 +9,5 @@ ActivityImproverApp.spec
 venv/
 
 .DS_Store
+
+config.json
