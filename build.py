@@ -1,26 +1,29 @@
 import subprocess
 import sys
-import os
 
 
-def build():
-    # Define the name of your script and executable
-    script_name = "activity_improver.py"
-    output_name = "ActivityImproverApp"
+def build_application():
+    # Define the name of the main Python script for your application
+    main_script = (
+        "main.py"  # Replace with the name of your main script if it's different
+    )
 
-    # PyInstaller command
-    command = [
+    # Define the name of the output executable
+    output_name = "activity_improver"
+
+    # Define additional options for PyInstaller
+    pyinstaller_options = [
         "pyinstaller",
-        "--onefile",  # Bundle everything into a single file
-        "--windowed",  # No console window (use for GUI apps)
-        "--name",
-        output_name,  # Name of the executable
-        script_name,  # Main Python script
+        "--onefile",  # Create a single executable file
+        "--noconsole",  # Hide the console window (for GUI applications)
+        "--icon=handshake.ico",  # Specify the icon file for the executable
+        f"--name={output_name}",  # Specify the name of the output executable
+        main_script,  # The main Python script to package
     ]
 
-    # Run the PyInstaller command
-    subprocess.run(command, check=True)
+    # Execute PyInstaller command
+    subprocess.run(pyinstaller_options, check=True)
 
 
 if __name__ == "__main__":
-    build()
+    build_application()

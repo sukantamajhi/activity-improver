@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 )
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
+from PyQt5.QtGui import QIcon
 import pyautogui
 import sys
 
@@ -34,6 +35,9 @@ class ActivityImproverApp(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
+        self.setWindowFlags(
+            Qt.WindowCloseButtonHint | Qt.WindowTitleHint | Qt.WindowMinimizeButtonHint
+        )
         self.thread = None
 
     def init_ui(self):
@@ -46,6 +50,8 @@ class ActivityImproverApp(QWidget):
         self.layout.setSpacing(15)
 
         self.label = QLabel("Welcome to Activity Improver", self)
+        # set window icon
+        self.setWindowIcon(QIcon("handshake.ico"))
         self.label.setStyleSheet("font-size: 24px; font-weight: bold; color: #333;")
         self.layout.addWidget(self.label)
 
