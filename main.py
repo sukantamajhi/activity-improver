@@ -45,7 +45,9 @@ class ActivityImproverApp(QWidget):
         # Window settings
         self.setWindowTitle("Activity Improver")
         self.setGeometry(100, 100, 400, 300)
-        self.setStyleSheet("background-color: #eaeaea; font-family: Arial, sans-serif;")
+        self.setStyleSheet(
+            "background-color: #eaeaea; font-family: Helvetica, sans-serif; font-size: 16px; color: #333;"
+        )
 
         # Layout settings
         self.layout = QVBoxLayout()
@@ -56,7 +58,9 @@ class ActivityImproverApp(QWidget):
         self.label = QLabel("Welcome to Activity Improver", self)
         # set window icon
         self.setWindowIcon(QIcon("handshake.ico"))
-        self.label.setStyleSheet("font-size: 24px; font-weight: bold; color: #333;")
+        self.label.setStyleSheet(
+            "font-size: 24px; font-weight: bold; color: #333; font-family: Helvetica, sans-serif;"
+        )
         self.layout.addWidget(self.label)
 
         # Description
@@ -64,12 +68,16 @@ class ActivityImproverApp(QWidget):
             "This app will help you improve your activity by simulating mouse movement at a regular interval.",
             self,
         )
-        self.description.setStyleSheet("font-size: 18px; color: #666;")
+        self.description.setStyleSheet(
+            "font-family: Helvetica, sans-serif; font-size: 18px; color: #666;"
+        )
         self.layout.addWidget(self.description)
 
         # Interval settings
         self.interval_label = QLabel("Select the interval level in milliseconds", self)
-        self.interval_label.setStyleSheet("font-size: 18px; color: #666;")
+        self.interval_label.setStyleSheet(
+            "font-family: Helvetica, sans-serif; font-size: 18px; color: #666;"
+        )
         self.layout.addWidget(self.interval_label)
 
         # Interval input
@@ -83,7 +91,9 @@ class ActivityImproverApp(QWidget):
 
         # Distance settings
         self.distance_label = QLabel("Select the distance level in pixels", self)
-        self.distance_label.setStyleSheet("font-size: 18px; color: #666;")
+        self.distance_label.setStyleSheet(
+            "font-family: Helvetica, sans-serif; font-size: 18px; color: #666;"
+        )
         self.layout.addWidget(self.distance_label)
 
         # Distance input
