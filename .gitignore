@@ -1,0 +1,6 @@
+# ignore the dist folder
+dist/
+__pycache__/
+
+build/
+activity_improver.spec
