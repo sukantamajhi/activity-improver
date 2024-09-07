@@ -1,115 +1,137 @@
-from tkinter import *
-from tkinter import messagebox
-import threading
-import time
+from PyQt5.QtWidgets import (
+    QApplication,
+    QWidget,
+    QVBoxLayout,
+    QPushButton,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+)
+from PyQt5.QtCore import QThread, pyqtSignal, Qt
 import pyautogui
+import sys
 
 
-def center_window(window, width, height):
-    # Get the dimensions of the screen
-    screen_width = window.winfo_screenwidth()
-    screen_height = window.winfo_screenheight()
+class WorkerThread(QThread):
+    def __init__(self, interval, parent=None):
+        super().__init__(parent)
+        self.interval = interval
+        self.running = True
 
-    # Calculate the x and y coordinates for the window to be centered
-    x = (screen_width // 2) - (width // 2)
-    y = (screen_height // 2) - (height // 2)
+    def run(self):
+        while self.running:
+            # Move mouse cursor slightly
+            current_position = pyautogui.position()
+            pyautogui.moveTo(current_position.x + 0.5, current_position.y)
+            pyautogui.moveTo(current_position.x, current_position.y)
+            QThread.msleep(self.interval)
 
-    # Set the position of the window
-    window.geometry(f"{width}x{height}+{x}+{y}")
-
-
-# Create root window
-root = Tk()
-root.title("Welcome to Activity Improver")
-center_window(root, 350, 250)  # Adjusted the height for better spacing
-
-# Global variable to control the thread
-stop_thread_flag = threading.Event()
+    def stop(self):
+        self.running = False
 
 
-def clicked():
-    interval = int(txt.get())  # interval in milliseconds
-    stop_thread_flag.clear()  # Reset the stop flag
-    try:
-        while not stop_thread_flag.is_set():
-            # print("Hello")
-            pyautogui.press("enter")
-            time.sleep(interval / 1000)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+class ActivityImproverApp(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
+        self.thread = None
+
+    def init_ui(self):
+        self.setWindowTitle("Activity Improver")
+        self.setGeometry(100, 100, 400, 300)
+        self.setStyleSheet("background-color: #eaeaea; font-family: Arial, sans-serif;")
+
+        self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(20, 20, 20, 20)
+        self.layout.setSpacing(15)
+
+        self.label = QLabel("Welcome to Activity Improver", self)
+        self.label.setStyleSheet("font-size: 24px; font-weight: bold; color: #333;")
+        self.layout.addWidget(self.label)
+
+        self.description = QLabel(
+            "This app will help you improve your activity by simulating mouse movement at a regular interval.",
+            self,
+        )
+        self.description.setStyleSheet("font-size: 18px; color: #666;")
+        self.layout.addWidget(self.description)
+
+        self.interval_label = QLabel("Select the interval level in milliseconds", self)
+        self.interval_label.setStyleSheet("font-size: 18px; color: #666;")
+        self.layout.addWidget(self.interval_label)
+
+        self.interval_input = QLineEdit(self)
+        self.interval_input.setPlaceholderText("Enter interval level (e.g., 1000)")
+        self.interval_input.setStyleSheet(
+            "font-size: 16px; padding: 10px; border-radius: 8px; border: 1px solid #aaa; background-color: #fff;"
+        )
+        self.layout.addWidget(self.interval_input)
+
+        self.start_button = QPushButton("Start", self)
+        self.start_button.setStyleSheet(
+            "background-color: #4caf50; color: white; padding: 10px; border-radius: 8px; font-size: 16px; font-weight: bold;"
+        )
+        self.start_button.setFixedHeight(40)
+        self.start_button.setCursor(Qt.PointingHandCursor)
+        self.start_button.clicked.connect(self.start_thread)
+        self.layout.addWidget(self.start_button)
+
+        self.stop_button = QPushButton("Stop", self)
+        self.stop_button.setStyleSheet(
+            "background-color: #f44336; color: white; padding: 10px; border-radius: 8px; font-size: 16px; font-weight: bold;"
+        )
+        self.stop_button.setFixedHeight(40)
+        self.stop_button.setCursor(Qt.PointingHandCursor)
+        self.stop_button.clicked.connect(self.stop_thread)
+        self.layout.addWidget(self.stop_button)
+
+        self.setLayout(self.layout)
+
+    def start_thread(self):
+        interval_str = self.interval_input.text()
+        if not interval_str:
+            QMessageBox.critical(self, "Error", "Please set the interval level")
+            return
+
+        try:
+            interval = int(interval_str)
+        except ValueError:
+            QMessageBox.critical(self, "Error", "Interval must be a number")
+            return
+
+        if self.thread and self.thread.isRunning():
+            QMessageBox.warning(
+                self, "Warning", "The activity improver is already running."
+            )
+            return
+
+        self.thread = WorkerThread(interval)
+        self.thread.start()
+        self.start_button.setText("Running")
+        self.start_button.setStyleSheet(
+            "background-color: grey; color: white; border-radius: 5px; padding: 5px 10px; font-size: 16px; font-weight: bold;"
+        )
+        QMessageBox.information(self, "Started", "The activity improver has started.")
+
+    def stop_thread(self):
+        if self.thread and self.thread.isRunning():
+            self.thread.stop()
+            self.thread.wait()
+            self.start_button.setText("Start")
+            self.start_button.setStyleSheet(
+                "background-color: green; color: white; border-radius: 5px; padding: 5px 10px; font-size: 16px; font-weight: bold;"
+            )
+            QMessageBox.information(
+                self, "Stopped", "The activity improver has stopped."
+            )
+        else:
+            QMessageBox.information(
+                self, "Stopped", "The activity improver is not running."
+            )
 
 
-def start_thread():
-    global thread
-    interval = txt.get()
-    if not interval:
-        messagebox.showerror("Error", "Please set the interval level")
-        return
-    if not thread.is_alive():
-        stop_thread_flag.clear()
-        thread = threading.Thread(target=clicked)
-        thread.daemon = True
-        thread.start()
-        start_button.config(text="Running", state=DISABLED, bg="grey", fg="white")
-        messagebox.showinfo("Started", "The activity improver has started.")
-
-
-def stop_thread():
-    # check if the thread is running
-    if thread.is_alive():
-        stop_thread_flag.set()  # Signal the thread to stop
-        start_button.config(text="Start")  # Change button text back to "Start"
-        start_button.config(text="Start", state=NORMAL, bg="green", fg="white")
-        messagebox.showinfo("Stopped", "The activity improver has stopped.")
-        return
-    else:
-        messagebox.showinfo("Stopped", "The activity improver is not running.")
-        return
-
-
-# Initialize the thread variable
-thread = threading.Thread(target=clicked)
-
-# Frame to hold all the widgets for better alignment
-frame = Frame(root)
-frame.pack(expand=True)  # Center the frame in the root window
-
-# Add widgets to the frame
-label = Label(frame, text="Welcome to Activity Improver", font=("Helvetica", 14))
-label.grid(column=0, row=0, columnspan=2, pady=(10, 20))
-
-interval_level = Label(
-    frame, text="Select the interval level in milliseconds", font=("Helvetica", 12)
-)
-interval_level.grid(column=0, row=1, columnspan=2, pady=(0, 10))
-
-txt = Entry(frame, width=30, font=("Helvetica", 12), relief="solid")
-txt.grid(column=0, row=2, columnspan=2, pady=(0, 20))
-
-start_button = Button(
-    frame,
-    text="Start",
-    fg="white",
-    bg="green",
-    disabledforeground="white",
-    command=start_thread,
-    width=10,
-    font=("Helvetica", 12),
-    relief="flat",
-)
-start_button.grid(column=0, row=3, pady=(10, 5))
-
-stop_button = Button(
-    frame,
-    text="Stop",
-    bg="red",
-    fg="white",
-    command=stop_thread,
-    width=10,
-    font=("Helvetica", 12),
-    relief="flat",
-)
-stop_button.grid(column=1, row=3, pady=(10, 5))
-
-# Execute Tkinter
-root.mainloop()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = ActivityImproverApp()
+    window.show()
+    sys.exit(app.exec_())

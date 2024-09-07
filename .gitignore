@@ -4,6 +4,7 @@ __pycache__/
 
 build/
 activity_improver.spec
+ActivityImproverApp.spec
 
 venv/
 
