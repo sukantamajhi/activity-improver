@@ -20,7 +20,6 @@ def build_application():
             "pyinstaller",
             "--onefile",  # Create a single executable file
             "--windowed",  # Hide the console window (for GUI applications)
-            f"--icon={icon_file}",  # Specify the icon file for the executable
             f"--name={output_name}",  # Specify the name of the output executable
             main_script,  # The main Python script to package
         ]
