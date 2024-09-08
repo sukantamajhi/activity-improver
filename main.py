@@ -22,26 +22,6 @@ from ActivityImprover import ActivityImproverApp
 # Configuration file path
 CONFIG_FILE = "config.json"
 
-user_name = ""
-
-
-class WorkerThread(QThread):
-    def __init__(self, interval, distance, parent=None):
-        super().__init__(parent)
-        self.interval = interval
-        self.distance = distance
-        self.running = True
-
-    def run(self):
-        while self.running:
-            current_position = pyautogui.position()
-            pyautogui.moveTo(current_position.x + self.distance, current_position.y)
-            pyautogui.moveTo(current_position.x, current_position.y)
-            QThread.msleep(self.interval)
-
-    def stop(self):
-        self.running = False
-
 
 class LoginWindow(QWidget):
     def __init__(self):
@@ -107,6 +87,7 @@ class LoginWindow(QWidget):
 
         print({"email": email, "password": password}, "login data")
 
+        # TODO: Need to change this to the actual API endpoint. Currently we are using a local server of ecom-be.
         response = r.post(
             "http://localhost:4000/api/auth/signin",
             json={"email": email, "password": password},
