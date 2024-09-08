@@ -15,9 +15,14 @@ import sys
 import json
 import os
 import time
+import requests as r
+
+from ActivityImprover import ActivityImproverApp
 
 # Configuration file path
 CONFIG_FILE = "config.json"
+
+user_name = ""
 
 
 class WorkerThread(QThread):
@@ -38,19 +43,14 @@ class WorkerThread(QThread):
         self.running = False
 
 
-class ActivityImproverApp(QWidget):
+class LoginWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
-        self.setWindowFlags(
-            Qt.WindowCloseButtonHint | Qt.WindowTitleHint | Qt.WindowMinimizeButtonHint
-        )
-        self.thread = None
-        self.load_settings()
 
     def init_ui(self):
-        self.setWindowTitle("Activity Improver")
-        self.setGeometry(100, 100, 400, 350)
+        self.setWindowTitle("Login")
+        self.setGeometry(100, 100, 300, 200)
         self.setStyleSheet(
             "background-color: #eaeaea; font-family: Helvetica, sans-serif; font-size: 16px; color: #333;"
         )
@@ -59,173 +59,73 @@ class ActivityImproverApp(QWidget):
         self.layout.setContentsMargins(20, 20, 20, 20)
         self.layout.setSpacing(15)
 
-        self.label = QLabel("Welcome to Activity Improver", self)
-        self.setWindowIcon(QIcon("handshake.ico"))
+        self.label = QLabel("Enter your email", self)
         self.label.setStyleSheet(
             "font-size: 24px; font-weight: bold; color: #333; font-family: Helvetica, sans-serif;"
         )
         self.layout.addWidget(self.label)
 
-        self.description = QLabel(
-            "This app will help you improve your activity by simulating mouse movement at a regular interval.",
-            self,
-        )
-        self.description.setStyleSheet(
-            "font-family: Helvetica, sans-serif; font-size: 18px; color: #666;"
-        )
-        self.layout.addWidget(self.description)
-
-        self.preset_label = QLabel("Select a preset configuration", self)
-        self.preset_label.setStyleSheet(
-            "font-family: Helvetica, sans-serif; font-size: 18px; color: #666;"
-        )
-        self.layout.addWidget(self.preset_label)
-
-        self.preset_combo = QComboBox(self)
-        self.preset_combo.addItems(["None", "Short Breaks", "Long Breaks"])
-        self.preset_combo.setStyleSheet(
+        self.email_input = QLineEdit(self)
+        self.email_input.setPlaceholderText("Enter your email")
+        self.email_input.setStyleSheet(
             "font-size: 16px; padding: 10px; border-radius: 8px; border: 1px solid #aaa; background-color: #fff;"
         )
-        self.preset_combo.currentIndexChanged.connect(self.apply_preset)
-        self.layout.addWidget(self.preset_combo)
+        self.layout.addWidget(self.email_input)
 
-        self.interval_label = QLabel("Select the interval level in milliseconds", self)
-        self.interval_label.setStyleSheet(
-            "font-family: Helvetica, sans-serif; font-size: 18px; color: #666;"
+        self.label = QLabel("Enter your password", self)
+        self.label.setStyleSheet(
+            "font-size: 24px; font-weight: bold; color: #333; font-family: Helvetica, sans-serif;"
         )
-        self.layout.addWidget(self.interval_label)
+        self.layout.addWidget(self.label)
 
-        self.interval_input = QLineEdit(self)
-        self.interval_input.setText("100")
-        self.interval_input.setPlaceholderText("Enter interval level (e.g., 100)")
-        self.interval_input.setStyleSheet(
+        self.password_input = QLineEdit(self)
+        self.password_input.setPlaceholderText("Enter your password")
+        self.password_input.setEchoMode(QLineEdit.Password)
+        self.password_input.setStyleSheet(
             "font-size: 16px; padding: 10px; border-radius: 8px; border: 1px solid #aaa; background-color: #fff;"
         )
-        self.layout.addWidget(self.interval_input)
+        self.layout.addWidget(self.password_input)
 
-        self.distance_label = QLabel("Select the distance level in pixels", self)
-        self.distance_label.setStyleSheet(
-            "font-family: Helvetica, sans-serif; font-size: 18px; color: #666;"
-        )
-        self.layout.addWidget(self.distance_label)
-
-        self.distance_input = QLineEdit(self)
-        self.distance_input.setText("0.5")
-        self.distance_input.setPlaceholderText("Enter distance level (e.g., 0.5)")
-        self.distance_input.setStyleSheet(
-            "font-size: 16px; padding: 10px; border-radius: 8px; border: 1px solid #aaa; background-color: #fff;"
-        )
-        self.layout.addWidget(self.distance_input)
-
-        self.start_button = QPushButton("Start", self)
-        self.start_button.setStyleSheet(
+        self.login_button = QPushButton("Login", self)
+        self.login_button.setStyleSheet(
             "background-color: #4caf50; color: white; padding: 10px; border-radius: 8px; font-size: 16px; font-weight: bold;"
         )
-        self.start_button.setFixedHeight(40)
-        self.start_button.setCursor(Qt.PointingHandCursor)
-        self.start_button.clicked.connect(self.start_thread)
-        self.layout.addWidget(self.start_button)
-
-        self.stop_button = QPushButton("Stop", self)
-        self.stop_button.setStyleSheet(
-            "background-color: #f44336; color: white; padding: 10px; border-radius: 8px; font-size: 16px; font-weight: bold;"
-        )
-        self.stop_button.setFixedHeight(40)
-        self.stop_button.setCursor(Qt.PointingHandCursor)
-        self.stop_button.clicked.connect(self.stop_thread)
-        self.layout.addWidget(self.stop_button)
+        self.login_button.setFixedHeight(40)
+        self.login_button.setCursor(Qt.PointingHandCursor)
+        self.login_button.clicked.connect(self.login)
+        self.layout.addWidget(self.login_button)
 
         self.setLayout(self.layout)
 
-    def load_settings(self):
-        if os.path.exists(CONFIG_FILE):
-            with open(CONFIG_FILE, "r") as file:
-                config = json.load(file)
-                self.interval_input.setText(str(config.get("interval", 100)))
-                self.distance_input.setText(str(config.get("distance", 0.5)))
-                self.preset_combo.setCurrentText(config.get("preset", "None"))
+    def login(self):
+        email = self.email_input.text()
+        password = self.password_input.text()
 
-    def save_settings(self):
-        config = {
-            "interval": int(self.interval_input.text()),
-            "distance": float(self.distance_input.text()),
-            "preset": self.preset_combo.currentText(),
-        }
-        with open(CONFIG_FILE, "w") as file:
-            json.dump(config, file)
-
-    def apply_preset(self):
-        preset = self.preset_combo.currentText()
-        if preset == "Short Breaks":
-            self.interval_input.setText("200")
-            self.distance_input.setText("5")
-        elif preset == "Long Breaks":
-            self.interval_input.setText("1000")
-            self.distance_input.setText("10")
-        else:
-            self.interval_input.setText("100")
-            self.distance_input.setText("0.5")
-
-    def start_thread(self):
-        interval_str = self.interval_input.text()
-        distance_str = self.distance_input.text()
-
-        if not interval_str or not distance_str:
-            QMessageBox.critical(
-                self,
-                "Error",
-                "Please set both the interval level and the distance level",
-            )
+        if not email or not password:
+            QMessageBox.critical(self, "Error", "Please enter your email and password")
             return
 
-        try:
-            interval = int(interval_str)
-            distance = float(distance_str)
-            if interval <= 0:
-                raise ValueError("Interval must be a positive integer")
-            if distance < 0:
-                raise ValueError("Distance must be a non-negative number")
-        except ValueError as e:
-            QMessageBox.critical(self, "Error", f"Invalid input: {e}")
-            return
+        print({"email": email, "password": password}, "login data")
 
-        if self.thread and self.thread.isRunning():
-            QMessageBox.warning(
-                self, "Warning", "The activity improver is already running."
-            )
-            return
-
-        self.thread = WorkerThread(interval, distance)
-        self.thread.start()
-        self.start_button.setText("Running")
-        self.start_button.setStyleSheet(
-            "background-color: grey; color: white; border-radius: 5px; padding: 5px 10px; font-size: 16px; font-weight: bold;"
+        response = r.post(
+            "http://localhost:4000/api/auth/signin",
+            json={"email": email, "password": password},
+            headers={"Content-Type": "application/json"},
         )
-        QMessageBox.information(self, "Started", "The activity improver has started.")
+        print(response.json(), "response")
+        if response.status_code == 200:
+            user_name = response.json().get("username")
+            print(user_name, "user_name")
+            self.main_window = ActivityImproverApp(user_name=user_name)
 
-    def stop_thread(self):
-        if self.thread and self.thread.isRunning():
-            self.thread.stop()
-            self.thread.wait()
-            self.start_button.setText("Start")
-            self.start_button.setStyleSheet(
-                "background-color: #4caf50; color: white; border-radius: 5px; padding: 5px 10px; font-size: 16px; font-weight: bold;"
-            )
-            QMessageBox.information(
-                self, "Stopped", "The activity improver has stopped."
-            )
+            self.main_window.show()
+            self.close()
         else:
-            QMessageBox.information(
-                self, "Stopped", "The activity improver is not running."
-            )
-
-    def closeEvent(self, event):
-        self.save_settings()
-        event.accept()
+            QMessageBox.critical(self, "Error", "Incorrect password")
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = ActivityImproverApp()
+    window = LoginWindow()
     window.show()
     sys.exit(app.exec_())
