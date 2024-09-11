@@ -58,7 +58,7 @@ def build_application():
             os.remove(spec_file)
             print(f"Removed spec file '{spec_file}'")
 
-        print("🚀 Build completed successfully 🚀")
+        print("Build completed successfully.")
 
     except subprocess.CalledProcessError as e:
         print(f"An error occurred during the build process: {e}")
