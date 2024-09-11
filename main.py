@@ -49,7 +49,7 @@ class ActivityImproverApp(QWidget):
         self.load_settings()
 
     def init_ui(self):
-        self.setWindowTitle("Activity Improver")
+        self.setWindowTitle("Presence Maker")
         self.setGeometry(100, 100, 400, 350)
         self.setStyleSheet(
             "background-color: #eaeaea; font-family: Helvetica, sans-serif; font-size: 16px; color: #333;"
@@ -59,7 +59,7 @@ class ActivityImproverApp(QWidget):
         self.layout.setContentsMargins(20, 20, 20, 20)
         self.layout.setSpacing(15)
 
-        self.label = QLabel("Welcome to Activity Improver", self)
+        self.label = QLabel("Welcome to Presence Maker", self)
         self.setWindowIcon(QIcon("handshake.ico"))
         self.label.setStyleSheet(
             "font-size: 24px; font-weight: bold; color: #333; font-family: Helvetica, sans-serif;"
@@ -191,7 +191,7 @@ class ActivityImproverApp(QWidget):
 
         if self.thread and self.thread.isRunning():
             QMessageBox.warning(
-                self, "Warning", "The activity improver is already running."
+                self, "Warning", "The presence maker is already running."
             )
             return
 
@@ -201,7 +201,7 @@ class ActivityImproverApp(QWidget):
         self.start_button.setStyleSheet(
             "background-color: grey; color: white; border-radius: 5px; padding: 5px 10px; font-size: 16px; font-weight: bold;"
         )
-        QMessageBox.information(self, "Started", "The activity improver has started.")
+        QMessageBox.information(self, "Started", "The presence maker has started.")
 
     def stop_thread(self):
         if self.thread and self.thread.isRunning():
@@ -211,12 +211,10 @@ class ActivityImproverApp(QWidget):
             self.start_button.setStyleSheet(
                 "background-color: #4caf50; color: white; border-radius: 5px; padding: 5px 10px; font-size: 16px; font-weight: bold;"
             )
-            QMessageBox.information(
-                self, "Stopped", "The activity improver has stopped."
-            )
+            QMessageBox.information(self, "Stopped", "The presence maker has stopped.")
         else:
             QMessageBox.information(
-                self, "Stopped", "The activity improver is not running."
+                self, "Stopped", "The presence maker is not running."
             )
 
     def closeEvent(self, event):
