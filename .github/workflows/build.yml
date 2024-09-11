@@ -29,10 +29,10 @@ jobs:
               run: python build.py
 
             - name: Upload Windows artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: windows-build
-                  path: dist/Presence\ Maker.exe # Adjust if your output path differs
+                  path: dist/Presence Maker.exe # Adjust if your output path differs
 
     build-linux:
         runs-on: ubuntu-latest
@@ -57,7 +57,7 @@ jobs:
               run: chmod +x dist/Presence\ Maker # Ensure the file is executable
 
             - name: Upload Linux artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: linux-build
                   path: dist/Presence\ Maker # Adjust if your output path differs
@@ -85,7 +85,7 @@ jobs:
               run: chmod +x dist/Presence\ Maker # Ensure the file is executable
 
             - name: Upload macOS artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: macos-build
                   path: dist/Presence\ Maker # Adjust if your output path differs
