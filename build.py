@@ -52,12 +52,6 @@ def build_application():
         print(f"Building application with the command: {' '.join(pyinstaller_options)}")
         subprocess.run(pyinstaller_options, check=True)
 
-        # Remove the .spec file if it exists
-        spec_file = f"{output_name}.spec"
-        if os.path.isfile(spec_file):
-            os.remove(spec_file)
-            print(f"Removed spec file '{spec_file}'")
-
         print("Build completed successfully.")
 
     except subprocess.CalledProcessError as e:
