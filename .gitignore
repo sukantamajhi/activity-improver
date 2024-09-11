@@ -3,9 +3,10 @@ dist/
 __pycache__/
 
 build/
-activity_improver.spec
-ActivityImproverApp.spec
+*.spec
 
 venv/
 
 .DS_Store
+
+config.json
